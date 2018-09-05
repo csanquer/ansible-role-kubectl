@@ -1,0 +1,35 @@
+---
+- name: get kubectl version
+  shell: "kubectl version -c -o json"
+  register: kubectl_result
+  ignore_errors: yes
+
+- name: set kubectl current version fact
+  set_fact:
+      kubectl_current_version: "{{ (kubectl_result.rc == 0)|ternary(kubectl_result.stdout, '{}')|default('{}')|from_json|json_query('clientVersion.gitVersion')|replace('v','') }}"
+
+- name: get latest stable kubectl tag
+  uri:
+    url: "{{ kubectl_release_api_url }}"
+    return_content: true
+  ignore_errors: yes
+  register: kubectl_release_result
+  when: kubectl_version == 'latest'
+
+- name: set kubectl version fact
+  set_fact:
+       kubectl_version: "{{ kubectl_release_result.content|default(kubectl_default_version)|replace('v','')|trim }}"
+  when: kubectl_version == 'latest'
+
+- name: set kubectl version fact
+  set_fact:
+    kubectl_version: "{{ kubectl_default_version }}"
+  when: kubectl_version == '' or kubectl_version is none
+
+- name: "download kubectl binary {{ kubectl_version }}"
+  get_url:
+      url: "{{ kubectl_base_url }}{{ kubectl_version }}/bin/linux/amd64/kubectl"
+      dest: /usr/local/bin/kubectl
+      mode: 0755
+      force: yes
+  when: kubectl_current_version != kubectl_version

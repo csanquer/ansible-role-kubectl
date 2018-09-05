@@ -1,0 +1,6 @@
+---
+kubectl_default_version: '1.11.2'
+
+kubectl_release_api_url: https://storage.googleapis.com/kubernetes-release/release/stable.txt
+
+kubectl_base_url: https://storage.googleapis.com/kubernetes-release/release/v
