@@ -1,6 +1,6 @@
 ---
 - name: get kubectl version
-  shell: "kubectl version -c -o json"
+  shell: "kubectl version --client --output json"
   register: kubectl_result
   ignore_errors: yes
 
@@ -16,12 +16,12 @@
   register: kubectl_release_result
   when: kubectl_version == 'latest'
 
-- name: set kubectl version fact
+- name: set kubectl version fact to latest
   set_fact:
        kubectl_version: "{{ kubectl_release_result.content|default(kubectl_default_version)|replace('v','')|trim }}"
   when: kubectl_version == 'latest'
 
-- name: set kubectl version fact
+- name: set kubectl version fact to default
   set_fact:
     kubectl_version: "{{ kubectl_default_version }}"
   when: kubectl_version == '' or kubectl_version is none
