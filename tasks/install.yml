@@ -1,6 +1,6 @@
 ---
-- name: get kubectl version
-  shell: "kubectl version --client --output json"
+- name: get kubectl version # noqa 301
+  command: "kubectl version --client --output json"
   register: kubectl_result
   ignore_errors: yes
 
@@ -24,7 +24,7 @@
 - name: set kubectl version fact to default
   set_fact:
     kubectl_version: "{{ kubectl_default_version }}"
-  when: kubectl_version == '' or kubectl_version is none
+  when: not kubectl_version
 
 - name: "download kubectl binary {{ kubectl_version }}"
   get_url:
